@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Network with Info Frame</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        .info-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 320px;
+    max-width: 90%;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-image: url('vik.jpeg');
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px;
+    border: 2px solid white;
+}
+
+        .info-box h2 {
+            margin: 5px 0;
+            font-size: 22px;
+        }
+        .info-box p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="network"></canvas>
+    
+    <div class="info-box">
+        <div class="profile-pic"></div>
+        <h2>Vikrant Yadav</h2>
+        <p><strong>Education:</strong> B.Tech Student at National Institute of Technology Tiruchirappalli</p>
+        <p><strong>Skills:</strong> Web Development | Data Structures & Algorithms (DSA) | Software Enthusiast</p>
+        <p><strong>About Me:</strong> Passionate about building scalable and efficient software solutions. Experienced in web technologies and always eager to learn and grow in the field of software development.</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("network");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = Math.random() * 2 - 1;
+                this.vy = Math.random() * 2 - 1;
+                this.radius = 2;
+            }
+            move() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(200, 200, 200, 1)";
+                ctx.fill();
+            }
+        }
+
+        function createParticles(num) {
+            particles = [];
+            for (let i = 0; i < num; i++) {
+                particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
+            }
+        }
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    let dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+                    if (dist < 150) { // Increased connection distance
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = "rgba(200, 200, 200, 0.8)";
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { 
+                p.move();
+                p.draw(); 
+            });
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+
+        function init() {
+            resizeCanvas();
+            createParticles(100);
+            animate();
+        }
+
+        window.addEventListener("resize", () => {
+            resizeCanvas();
+            createParticles(100);
+        });
+
+        document.addEventListener("mousemove", (event) => {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+            particles[0].x = mouse.x;
+            particles[0].y = mouse.y;
+        });
+
+        init();
+    </script>
+</body>
+</html>
